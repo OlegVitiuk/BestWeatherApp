@@ -1,38 +1,9 @@
+import axios from "axios";
+
 const api = axios.create({
-  baseURL: "http://api.openweathermap.org/data/3.0/triggers"
+  baseURL: "http://api.openweathermap.org/data/2.5"
 });
 
-const getTrigger = temp => {
-  return JSON.stringify({
-    time_period: {
-      start: {
-        expression: "after",
-        amount: 132000000
-      },
-      end: {
-        expression: "after",
-        amount: 432000000
-      }
-    },
-    conditions: [
-      {
-        name: "temp",
-        expression: "$eq",
-        amount: temp
-      },
-      {
-        name: "humidity",
-        expression: "$eq",
-        amount: "50%"
-      }
-    ],
-    area: [
-      {
-        type: "Point",
-        coordinates: [53, 37]
-      }
-    ]
-  });
-};
+const APIKey = "687127fe9b4d07799d1e6e8eeb3d94df";
 
-export { getTrigger, api };
+export { api, APIKey };
