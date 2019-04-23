@@ -8,10 +8,7 @@ import { getCitiesInfo } from "api/requests";
 class CitiesContainer extends PureComponent {
   state = {
     cities: null,
-    paramsToSearch: {
-      temperature: 21,
-      humidity: 60
-    },
+    filteredCities: null,
     isDataLoading: false
   };
 
@@ -21,16 +18,17 @@ class CitiesContainer extends PureComponent {
     }));
   };
 
-  getCitiesInfo = async () => {
+  getCitiesInfo = async data => {
     const citiesBoxCoordinates = "-180,-90,180,90";
     const zoom = "10000";
-    const {
-      paramsToSearch: { temperature, humidity }
-    } = this.state;
+    const { temperature, humidity } = data;
 
     try {
       this.showLoader();
       const res = await getCitiesInfo(citiesBoxCoordinates, zoom);
+      const citiesList = res.data.list;
+
+      console.log(citiesList, "uploaded cities");
 
       const filteredCities = res.data.list.filter(
         city =>
@@ -38,7 +36,8 @@ class CitiesContainer extends PureComponent {
       );
 
       this.setState(() => ({
-        cities: filteredCities,
+        cities: citiesList,
+        filteredCities,
         isDataLoading: false
       }));
     } catch (e) {
@@ -46,16 +45,14 @@ class CitiesContainer extends PureComponent {
     }
   };
 
-  changeIndicators = () => {};
-
   renderContent = () => {
-    const { cities } = this.state;
-    console.log(this.state.cities, "citites");
-    const [mainCity, ...rest] = this.state.cities;
+    const { filteredCities } = this.state;
+    const [mainCity, ...rest] = filteredCities;
+    console.log(filteredCities, "cities");
     console.log(mainCity, "main");
     console.log(...rest, "rest");
 
-    if (!cities.length) {
+    if (!filteredCities.length) {
       return (
         <EmptyHeader>
           There is no cities by search params. Please change params and try
@@ -68,14 +65,22 @@ class CitiesContainer extends PureComponent {
       <Fragment>
         <MainCity mainCity={mainCity} />
         <OtherCities otherCities={[...rest]} />
-        <Picker changeIndicators={this.changeIndicators} />
       </Fragment>
     );
   };
 
-  componentDidMount() {
-    this.getCitiesInfo();
-  }
+  filterCitiesByIndicators = ({ temperature, humidity }) => {
+    const { cities } = this.state;
+
+    const filteredCities = cities.filter(
+      city => city.main.temp === temperature && city.main.humidity === humidity
+    );
+
+    this.setState({
+      filteredCities
+    });
+  };
+
   render() {
     const { isDataLoading, cities } = this.state;
 
@@ -86,6 +91,11 @@ class CitiesContainer extends PureComponent {
         ) : (
           this.renderContent()
         )}
+        <Picker
+          filterCitiesByIndicators={this.filterCitiesByIndicators}
+          loadData={this.getCitiesInfo}
+          isDataLoading={isDataLoading}
+        />
       </CitiesContainerWrapper>
     );
   }

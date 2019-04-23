@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { Card } from "antd";
 
 const OtherCitiesContainer = styled.div`
-  width: 100%;
+  width: 60%;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
